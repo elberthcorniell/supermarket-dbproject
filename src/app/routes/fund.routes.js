@@ -6,7 +6,6 @@ const explorer = require('bitcore-explorers');
 const Mnemonic = require('bitcore-mnemonic');
 const auth = require("../../config/auth");
 const mysql = require('mysql');
-const Wallet = require('../wallet')
 const https = require('https')
 const http = require('http')
 const uuid = require('uuid')
@@ -55,76 +54,6 @@ router.post('/balance', auth.checkToken, (req, res) => {
         }
       }
     })
-})
-router.post("/withdraw", auth.checkToken, (req, res) => {
-  const username = req.body.username
-  const amount = req.body.amount
-  new Wallet.getERC20Balance(req.body.method, (data) => {
-    if (data > amount) {
-      connection.query("SELECT SUM(value) FROM investment_transaction WHERE username = " + mysql.escape(username), (err, result) => {
-        if (err) { console.log(err); res.json({ success: false, msg: 'Connection error' }) } else {
-          if (result[0]['SUM(value)'] < amount) {
-            res.json({
-              success: false,
-              msg: 'Insuficent balance'
-            })
-          } else {
-            var txid = uuid.v4()
-            connection.query("INSERT INTO investment_transaction SET ?", {
-              username,
-              value: -amount,
-              description: 'Withdraw',
-              txid,
-              method: req.body.method
-            }, (err, result) => {
-              if (err) { console.log(err); res.json({ success: false, msg: 'Connection error' }) } else {
-                res.json({
-                  success: true,
-                  msg: 'Successful withdrawl'
-                })
-
-                //Enviar 
-                connection.query("SELECT email FROM user WHERE username = " + mysql.escape(username), (err, result) => {
-                  if (err) { console.log(err); res.json({ success: false, msg: 'Connection error' }) } else {
-                    var mailOptions = {
-                      from: 'noreply.bitnation@gmail.com',
-                      to: result[0].email,
-                      subject: '[Inverte] Withdrawal Request',
-                      html: '<html><head><link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">'
-                        + '<style>body{margin: 0px; padding: 0px; font-family: \'Montserrat\', sans-serif;}.fondo{background-color: #f3f5f7;width: 100%;padding: 20px;text-align: center;color: #a1a1a1; font-size: 18px; line-height : 30px;}'
-                        + 'button {padding: 10px;background-image: -webkit-gradient(linear, left top, right bottom, from(#fc6909), to(#f99f01));border-radius: 5px;margin: 20px;color: white;text-align: center;max-width: 300px;border: 0px solid #FFF}</style></head>'
-                        + '<body><div class="fondo"><img src="https://inverte.do/dist/images/logo_1.png" style="margin: 20px; width: 200px; display: inline-block" >'
-                        + '<div style="background-color: #fff; max-width: 600px; display: inline-block; text-align: left; padding: 40px; margin: 20px">'
-                        + '<p style="font-size: 24px;">Withdrawal Request</p><hr style="border-top: 1px solid #f3f5f7;" /><p>There has been a request to withdraw <strong>' + amount + ' ' + req.body.method + '</strong> from your Inverte\'s account.'
-                        + '<div style="padding: 5px; margin: 10px; width: 100% background-color: #f99f01; border-radius: 5px; text-align: center" ><a href=\'https://inverte.do/withdraw/' + txid + '\' >Confirm Withdrawal</a><div>'
-                        + '<br>If this was not your action and you are concerned about the security of your Inverte account, please contact us immediately.</p>'
-                        + '<br><p style="font-size: 12px;">Inverte Team<br>Automated message. please do not reply</p></div><div style="margin: 20px;">2018 - 2019 Bitnation Limited All Rights Reserved </div></div></body><html>'
-                    };
-
-                    transporter.sendMail(mailOptions, function (error, info) {
-                      if (error) {
-                        console.log(error);
-                      } else {
-                        console.log('Email sent: ' + info.response);
-                      }
-                    })
-                  }
-                })
-
-
-              }
-            })
-          }
-
-        }
-      })
-    } else {
-      res.json({
-        success: false,
-        msg: 'Can\'t process ' + req.body.method + ' withdrawals right now.'
-      })
-    }
-  })
 })
 router.post('/activity', auth.checkToken, (req, res) => {
   const username = req.body.username
@@ -337,34 +266,6 @@ router.post('/wallet', auth.checkToken, (req, res) => {
   })
 
 })
-router.post('/wallet/send', auth.checkToken, (req, res) => {
-  const username = req.body.username
-  const to = req.body.to
-  const amount = parseFloat(req.body.amount)
-  const currency = req.body.currency
-  console.log('Trying to send PAX')
-  connection.query("SELECT SUM(value) FROM hosted_transactions WHERE status = 1 AND currency = " + mysql.escape(currency) + " AND username = " + mysql.escape(username), (err, result) => {
-    if (err) { console.log(err); res.json({ success: false, msg: 'err' }) } else {
-      if (result.length > 0) {
-        console.log(typeof amount)
-        console.log('Balance: ', result[0]['SUM(value)'], ' Amount: ', amount)
-        if (result[0]['SUM(value)'] >= (amount + 0.1)) {
-          new Wallet.sendERC20(to, amount, username, currency, res)
-        } else {
-          res.json({
-            success: false,
-            msg: 'Error reading your balance'
-          })
-        }
-      } else {
-        res.json({
-          success: false,
-          msg: 'Error reading your balance'
-        })
-      }
-    }
-  })
-})
 router.post("/packs", auth.checkToken, (req, res) => {
   const username = req.body.username
   connection.query("SELECT SUM(packs) FROM mining WHERE username = " + mysql.escape(username), (err, result) => {
@@ -497,65 +398,6 @@ router.post('/wallet/transactions', auth.checkToken, (req, res) => {
       } else { }
     }
   })
-})
-
-router.post('/withdraw/address/set', auth.checkToken, (req, res) => {
-  var username = req.body.username
-  var address = req.body.address
-  var isValid_address = true
-  try {
-    isValid_address = new Wallet.isValid(address)
-  } catch (e) {
-    if (e.name == 'Error') {
-      isValid_address = false
-    }
-  }
-  connection.query("SELECT `bitcoin_address` FROM `user` WHERE `username` = " + mysql.escape(username), (err, result) => {
-    if (err) { console.log(err); res.status(400).json({ success: false, message: 'err' }) } else {
-      if (isValid_address) {
-        if (result.length > 0) {
-          connection.query("UPDATE `user` SET `bitcoin_address`= " + mysql.escape(address) + " WHERE username = " + mysql.escape(username), (err, result) => {
-            if (err) { console.log(err); res.status(400).json({ success: false, message: 'err' }) } else {
-              res.json({
-                success: true,
-                message: ''
-              })
-            }
-          })
-        } else {
-          res.json({
-            success: false,
-            message: 'Username do not exist'
-          })
-        }
-      } else {
-        res.json({
-          success: false,
-          message: 'Invalid bitcoin address'
-        })
-      }
-    }
-  })
-})
-router.post('/withdraw/address/set/ETH', auth.checkToken, (req, res) => {
-  var username = req.body.username
-  var address = req.body.address
-  var isValid_address = new Wallet.isValidETH(address)
-  if (isValid_address) {
-    connection.query("UPDATE `user` SET `ethereum_address`= " + mysql.escape(address) + " WHERE username = " + mysql.escape(username), (err, result) => {
-      if (err) { console.log(err); res.status(400).json({ success: false, message: 'err' }) } else {
-        res.json({
-          success: true,
-          message: ''
-        })
-      }
-    })
-  } else {
-    res.json({
-      success: false,
-      message: 'Invalid ethereum address'
-    })
-  }
 })
 router.post('/withdraw/address', auth.checkToken, (req, res) => {
   var username = req.body.username

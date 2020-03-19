@@ -10,18 +10,7 @@ const keys = require("../../config/keys");
 const auth = require("../../config/auth");
 const connection = dbConnection();
 const axios = require('axios');
-const Wallet = require('../wallet')
-const http = require('http')/*
-var i = 0
-setInterval(()=>{
-  connection.query("SELECT * FROM user WHERE address IS NULL", (err, result)=>{
-    if(result[i].username!=undefined){
-    new Wallet.create_wallet_address(result[i].username)
-    console.log(result[i].username, 'Done')
-    }
-  })
-  i = i + 1
-}, 3000)*/
+const http = require('http')
 setInterval(() => {
   connection.query("SELECT 1")
 }, 5000)
@@ -30,12 +19,6 @@ router.post("/register", (req, res) => {
   const email = req.body.email2;
   const password = req.body.password2;
   const address = '';
-  var sponsor = req.body.sponsor;/*
-  if (sponsor == '' || sponsor == undefined) {
-    const index = (Math.random() * 5).toFixed();
-    const leaders = ['yoelfco', 'elberthcorniell', 'noel3098', 'miguelegm', 'Nelsoncosme', 'Clsdiaz']
-    sponsor = leaders[index]
-  }*/
   connection.query("SELECT username FROM user WHERE network = 1 AND username = " + mysql.escape(sponsor), (err, result1) => {
     if (err) { console.log(err); res.status(400).json({ success: false }) } else {
       if (result1.length >= 1) {
@@ -54,7 +37,6 @@ router.post("/register", (req, res) => {
                 email
               }, (err, resutl) => {
                 if (err) { console.log(err); res.status(400).json({ success: false }) } else {
-                  const wallet = new Wallet.create_wallet_address(username)
                   res.json({
                     success: true
                   })
@@ -123,14 +105,13 @@ router.post("/login", (req, res) => {
                 email: data.data.email
               }, (err, resutl) => {
                 if (err) { console.log(err); res.status(400).json({ success: false }) } else {
-                  const wallet = new Wallet.create_wallet_address(username)
                   const payload = {
                     name: username
                   };
     
                   jwt.sign(payload, keys.secretOrKey,
                     {
-                      expiresIn: 18000 // 3 min in seconds
+                      expiresIn: 18000
                     },
                     (err, token) => {
                       res.json({

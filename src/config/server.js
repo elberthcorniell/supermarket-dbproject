@@ -3,11 +3,8 @@ const path =  require('path');
 const morgan = require('morgan');
 const Ddos = require('ddos')
 const app = express();
-var httpContext = require('express-http-context')
 const bodyParser = require("body-parser");
 const uuid = require('uuid')
-const websocketServer = require('ws').Server
-const api = require('binance');
 const upload = require('express-fileupload')
 const auth = require("./auth");
 const axios = require('axios')
@@ -18,22 +15,10 @@ const mysql = require('mysql');
 setInterval(() => {
   connection.query("SELECT 1")
 }, 5000)
-//const vhost = require('vhost'); //subdomain
-const binanceWS = new api.BinanceWS(true);
-//setting
 app.set('port', process.env.port || 3000);
 app.use(express.static(path.join(__dirname, '../public')));
 var ddos = new Ddos({burst:20, limit:30})
 app.use(ddos.express);
-app.use(httpContext.middleware);
-app.use((req,res,next)=>{
-  httpContext.ns.bindEmitter(req);
-  httpContext.ns.bindEmitter(res);
-  var requestId = req.headers["x-request-id"] || uuid.v4();
-  httpContext.set('requestId', requestId);
-  res.set('requestId', requestId)
-  next();
-});
 app.use(bodyParser.urlencoded({
     extended: true
   }));
@@ -43,21 +28,6 @@ app.use(morgan('dev'))
 .use('/api/validate', require ('../app/routes/validation.routes'))
 .get('/', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/index.html'))
-})/*
-.use(vhost('app.localhost:3000', __dirname+'../public/app/index.html')))
-*/
-app.get('/promo', (req,res)=>{
-  var caso = Math.random().toFixed()
-  caso == 1 ? res.redirect('https://inverte.do') : res.redirect('https://t.me/joinchat/J6-fYEQvK1-AorVY5Ozpng')  
-})
-app.get('/withdraw/:id', (req,res)=>{
-  var id = req.params.id
-  res.redirect('https://inverte.do')
-  connection.query("UPDATE investment_transaction SET ? WHERE txid = "+mysql.escape(id),{
-    validated: true,
-    time: currentTimeStamp()
-  }, (err,result)=>{
-  })
 })
 app.get('/auth/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/v/index.html'))
@@ -70,10 +40,6 @@ app.get('/*', (req,res)=>{
 })
 
 app.use(upload())
-app.post('/banner', (req,res)=>{
-  var id = uuid.v4()
-  var secret = ''
-})
 app.post('/upload',auth.checkToken, (req,res)=>{
   var id = uuid.v4()
   const username=req.body.username.toLowerCase()
