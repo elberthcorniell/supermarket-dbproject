@@ -12,8 +12,6 @@ import { QRCode } from 'react-qrcode-logo';
 import { Link } from "react-router-dom";
 import toaster from 'toasted-notes';
 import Ecosystem from './Ecosystem'
-import { authenticator } from '../public/app/otplib-browser'
-import Authenticator from './Authenticator'
 class Profile extends Component {
     constructor(props) {
         super(props);

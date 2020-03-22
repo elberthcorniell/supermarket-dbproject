@@ -26,17 +26,11 @@ app.use(morgan('dev'))
 .use(express.json())
 .use('/api/fund',  require ('../app/routes/fund.routes'))
 .use('/api/validate', require ('../app/routes/validation.routes'))
-.get('/', (req,res)=>{
-  res.sendFile(path.join(__dirname, '../public/index.html'))
+.get('/*', (req,res)=>{
+  res.sendFile(path.join(__dirname, '../public/app/index.html'))
 })
 app.get('/auth/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/v/index.html'))
-})
-app.get('/app/*', (req,res)=>{
-  res.sendFile(path.join(__dirname, '../public/app/index.html'))
-})
-app.get('/*', (req,res)=>{
-  res.redirect('https://blog.inverte.do/'+req.path)
 })
 
 app.use(upload())

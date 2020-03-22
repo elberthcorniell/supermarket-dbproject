@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Trade from './Trade';
-import Sidebar from './Sidebar';
 import Deposit from './Investment';
 import Profile from './Profile';
 import Mining from './Mining';
 import Network from './Network';
 import Oneauth from './Oneauth';
-import Tree from "./Tree";
 import toaster from 'toasted-notes';
-import Cashier from './Cashier';
-const webs = new WebSocket('wss://ws.blockchain.info/inv')
+
 class Backoffice extends Component {
     constructor(props) {
         super(props);
@@ -44,254 +41,8 @@ class Backoffice extends Component {
         };
     }
     componentDidMount() {
-        this.getBalance()
-        this.verify()
-        this.getPlan()
-        this.getWallet()
-        this.getROI()
-        this.getPrice()
-        this.getKYC()
-        webs.onmessage = message => {
-            if (data.op == 'utx') {
-                toaster.notify('New deposit received to your Wallet', {
-                    duration: 10000,
-                    position: 'bottom-right',
-                })
-                this.getWallet()
-            }
-        }
-
-
     }
     componentDidUpdate() {
-
-        if (webs.readyState == 1) {
-            webs.send(JSON.stringify({ "op": "addr_sub", "addr": this.state.address }))
-        }
-    }
-    getPrice() {
-        fetch('https://bitpay.com/api/rates/BTC', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                data.map(dat => {
-                    if (dat.code == 'USD') {
-                        this.setState({
-                            currency: [
-                                { symbol: 'USD', price: 1 },
-                                { symbol: 'BTC', price: dat.rate }
-                            ]
-                        })
-                    }
-                })
-            })
-            .catch(err => console.error(err));
-    }
-    verify() {
-        fetch('/api/fund/verify', {
-            method: 'POST',
-            body: JSON.stringify(this.state),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success === false) {
-                    window.location.replace('../auth/login');
-                } else {
-                    this.setState({
-                        username: data.username
-                    })
-                }
-            })
-            .catch(err => console.error(err));
-    }
-    getBalance() {
-        fetch('/api/fund/balance', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        total_balance: data.total_balance,
-                        lifetime_balance: data.lifetime_balance
-                    })
-                } else {
-
-                }
-            })
-        fetch('/api/fund/balance/network', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        network_balance: data.network_balance
-                    })
-                } else {
-
-                }
-            })
-    }
-
-    getWallet() {
-        fetch('/api/fund/withdraw/address', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        withdraw_address: data.withdraw_address,
-                        withdraw_address_ETH: data.withdraw_address_ETH
-                    })
-                } else {
-
-                }
-            })
-        fetch('/api/fund/withdraw/transactions', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        withdraw_transactions: data.withdraw_transactions
-                    })
-                } else {
-
-                }
-            })
-        fetch('/api/fund/wallet', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        individual_balance: data.balance,
-                        wallet_balance: data.total_balance,
-                        wallet_unconfirmed_balance: data.unconfirmed_balance
-                    })
-                } else {
-
-                }
-            })
-
-        fetch('/api/fund/wallet/transactions', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        wallet_transactions: data.wallet_transactions
-                    })
-                } else {
-
-                }
-            })
-    }
-    getROI() {
-        fetch('/api/fund/ROI', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.inactive) {
-                    localStorage.setItem('authtoken', '')
-                    alert("Inactive account. Contact support.")
-                    window.location.replace('../auth/login');
-                }
-                if (data.success) {
-                    this.setState({
-                        ROI: data.ROI,
-                        token: data['2fa'],
-                        address: data.address,
-                        leverage: data.leverage,
-                        network: data.network,
-                        email: data.email,
-                        new: data.new
-                    })
-                } else {
-
-                }
-            })
-    }
-    getKYC() {
-        fetch('/api/validate/kyc/level', {
-            method: 'POST',
-            body: JSON.stringify({}),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        kyc_level: data.level,
-                        kyc_status: data.status
-                    })
-                } else {
-
-                }
-            })
     }
     getPlan() {
         fetch('/api/fund/data', {
@@ -339,13 +90,8 @@ class Backoffice extends Component {
     render() {
         return (
             <Router>
-                <Sidebar 
-                    network={this.state.network}
-                    kyc_level={this.state.kyc_level}
-                    username={this.state.username}
-                />
                 <div className="App">
-                        <Route exact path="/app" render={(props) => <Trade {...props}
+                        <Route exact path="/" render={(props) => <Trade {...props}
                             token={this.state.token}
                             plan={this.state.plan}
                             currency={this.state.currency}
@@ -436,13 +182,6 @@ class Backoffice extends Component {
                             update={() => { this.getKYC() }}
                             setState={p => { this.setState(p) }} />}
                         />
-                        <Route exact path="/app/tree" render={(props) => <Tree {...props}
-                            username={this.state.username}
-                            plan={this.state.plan}
-                            update={() => this.componentDidMount()}
-                        />}
-
-                        />
                     </div>
             </Router>
         )
@@ -450,15 +189,3 @@ class Backoffice extends Component {
 }
 
 export default Backoffice;
-
-/*
-                    <Cashier
-                        individual_balance = {this.state.individual_balance}
-                        address={this.state.address}
-                        wallet_balance={this.state.wallet_balance}
-                        wallet_unconfirmed_balance={this.state.wallet_unconfirmed_balance}
-                        balance={this.state.total_balance}
-                        withdraw_address_ETH={this.state.withdraw_address_ETH}
-                        update={() => this.componentDidMount()}
-                        token={this.state.token}
-                    />*/

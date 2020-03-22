@@ -14,7 +14,6 @@ import Banner from './Banner'
 import Verify from './Verify'
 import toaster from 'toasted-notes';
 import Ecosystem from './Ecosystem';
-import Authenticator from './Authenticator';
 
 class Deposit extends Component {
     constructor(props) {
