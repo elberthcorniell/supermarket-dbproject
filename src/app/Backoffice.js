@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import Trade from './Trade';
+import Home from './Home';
 import Deposit from './Investment';
-import Profile from './Profile';
-import Mining from './Mining';
 import Network from './Network';
 import Oneauth from './Oneauth';
 import toaster from 'toasted-notes';
@@ -91,7 +89,7 @@ class Backoffice extends Component {
         return (
             <Router>
                 <div className="App">
-                        <Route exact path="/" render={(props) => <Trade {...props}
+                        <Route exact path="/" render={(props) => <Home {...props}
                             token={this.state.token}
                             plan={this.state.plan}
                             currency={this.state.currency}
@@ -124,34 +122,6 @@ class Backoffice extends Component {
                             plan={this.state.plan}
                             new={this.state.new}
                             balance={this.state.total_balance} />}
-                        />
-                        <Route exact path="/app/mining" render={(props) => <Mining {...props}
-                        individual_balance = {this.state.individual_balance}
-                            withdraw_transactions={this.state.withdraw_transactions}
-                            update={() => this.componentDidMount()}
-                            kyc_status={this.state.kyc_status}
-                            kyc_level={this.state.kyc_level}
-                            wallet_transactions={this.state.wallet_transactions}
-                            lifetime_investment={this.state.lifetime_investment}
-                            lifetime_balance={this.state.lifetime_balance}
-                            ROI={this.state.ROI}
-                            username={this.state.username}
-                            plan={this.state.plan}
-                            balance={this.state.total_balance}
-                            packs={this.state.packs}
-                        />}
-                        />
-                        <Route exact path="/app/profile" render={(props) => <Profile {...props}
-                            username={this.state.username}
-                            kyc_status={this.state.kyc_status}
-                            kyc_level={this.state.kyc_level}
-                            withdraw_address={this.state.withdraw_address}
-                            withdraw_address_ETH={this.state.withdraw_address_ETH}
-                            update={() => this.componentDidMount()}
-                            email={this.state.email}
-                            kyc_level={this.state.kyc_level}
-                            token={this.state.token}
-                        />}
                         />
                         <Route exact path="/app/network" render={(props) => <Network {...props}
                         individual_balance = {this.state.individual_balance}

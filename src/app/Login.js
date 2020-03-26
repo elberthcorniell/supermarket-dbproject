@@ -67,7 +67,7 @@ class Login extends Component{
               home
             </Link>
             <div className="col s12" style={{ paddingLeft: "11.250px" }}>
-            <img src="../dist/images/logo_no_text.png" width="50px" style={{ float: 'right' }}/>
+            <img src="../assets/images/logo_text.png" width={80} style={{ float: 'right' }}/>
               <h4>
                 <b>Login</b> below
               </h4>
@@ -110,8 +110,6 @@ class Login extends Component{
                     borderRadius: "3px",
                     letterSpacing: "1.5px",
                     marginTop: "1rem",
-                    backgroundImage: '-webkit-gradient(linear, left top, right bottom, from( #fc6909), to(#f99f01))'
-                 
                   }}
                   type="submit"
                   className="btn btn-large waves-effect waves-light hoverable"

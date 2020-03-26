@@ -15,15 +15,11 @@ import {
     FormControl,
     Navbar
 } from "react-bootstrap"
-import Banner from './Banner'
-import Verify from './Verify'
 import toaster from 'toasted-notes';
-import { QRCode } from 'react-qrcode-logo';
-import ProfileWidget from './ProfileWidget';
 import Glider from '../public/js/glider'
 
 Chart.defaults.scale.gridLines.display = false
-class Trade extends Component {
+class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -157,18 +153,21 @@ class Trade extends Component {
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="mr-auto">
                             <Nav.Link href="#home">Home</Nav.Link>
-                            <Nav.Link href="#link">Link</Nav.Link>
-                            <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                                <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>
-                                <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
+                            <NavDropdown title="Productos" id="basic-nav-dropdown">
+                                <NavDropdown.Item href="#action/3.1">Categoria 1</NavDropdown.Item>
+                                <NavDropdown.Item href="#action/3.2">Categoria 2</NavDropdown.Item>
+                                <NavDropdown.Item href="#action/3.3">Categoria 3</NavDropdown.Item>
                                 <NavDropdown.Divider />
-                                <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
+                                <NavDropdown.Item href="#action/3.4">Todos los productos</NavDropdown.Item>
                             </NavDropdown>
                         </Nav>
                         <Form inline>
-                            <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-                            <Button variant="outline-success">Search</Button>
+                            <Button
+                                onClick={()=>{window.location.replace('/auth/register')}}
+                            >Crear Cuenta</Button>
+                            <Button
+                                onClick={()=>{window.location.replace('/auth/login')}}
+                            >Iniciar Sesion</Button>
                         </Form>
                     </Navbar.Collapse>
                 </Navbar>
@@ -189,4 +188,4 @@ class Trade extends Component {
     }
 }
 
-export default Trade;
+export default Home;

@@ -10,7 +10,6 @@ const auth = require("./auth");
 const axios = require('axios')
 const dbConnection = require('./dbconnection');
 const connection = dbConnection();
-const mysql = require('mysql');
 
 setInterval(() => {
   connection.query("SELECT 1")
@@ -26,11 +25,11 @@ app.use(morgan('dev'))
 .use(express.json())
 .use('/api/fund',  require ('../app/routes/fund.routes'))
 .use('/api/validate', require ('../app/routes/validation.routes'))
-.get('/*', (req,res)=>{
-  res.sendFile(path.join(__dirname, '../public/app/index.html'))
-})
 app.get('/auth/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/v/index.html'))
+})
+.get('/*', (req,res)=>{
+  res.sendFile(path.join(__dirname, '../public/app/index.html'))
 })
 
 app.use(upload())
