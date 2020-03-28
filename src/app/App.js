@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
-import Recover from "./Recover";
 
 class App extends Component {
     constructor() {
@@ -33,7 +32,6 @@ class App extends Component {
                 <div className="App">
                     <Route exact path="/auth/login" component={Login} />
                     <Route exact path="/auth/register" component={Register} />
-                    <Route exact path="/auth/recover" component={Recover} />
                 </div>
             </Router>
 

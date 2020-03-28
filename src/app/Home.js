@@ -23,15 +23,7 @@ class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            plan: '',
-            transactions: [],
-            base: 'USD',
-            AUM: '',
-            AAR: '',
-            unlock_modal: false,
-            transaction: true,
-            Interest: false,
-            Investment: false
+            top10_productos: {}
         };
         this.change = this.change.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -182,6 +174,7 @@ class Home extends Component {
                     </Col>
                 </Row>
             <Container>
+                <h1>Productos</h1>
             </Container>
             </div>
         )

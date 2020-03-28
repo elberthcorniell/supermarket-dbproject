@@ -15,9 +15,7 @@ setInterval(() => {
   connection.query("SELECT 1")
 }, 5000)
 router.post("/register", (req, res) => {
-  const username = req.body.username2;
-  const email = req.body.email2;
-  const password = req.body.password2;
+  const {username, email, password} = req.body;
   const address = '';
   connection.query("SELECT username FROM user WHERE network = 1 AND username = " + mysql.escape(sponsor), (err, result1) => {
     if (err) { console.log(err); res.status(400).json({ success: false }) } else {
@@ -63,11 +61,7 @@ router.post("/login", (req, res) => {
   if (!isValid) {
     return res.status(400).json(errors);
   }
-  const username = req.body.username;
-  const password = req.body.password;
-  const ip = req.body.ip;
-  const location = req.body.location;
-  const os = req.body.os;
+  const { username, password } = req.body;
   axios.post('https://oneauth.do/api/validate/login', {
     username,
     password
@@ -77,12 +71,6 @@ router.post("/login", (req, res) => {
         connection.query("SELECT username FROM user WHERE username = " + mysql.escape(username), (err, result) => {
           if (err) { console.log(err); res.json({ success: false }) } else {
             if (result.length >= 1) {
-              connection.query("INSERT INTO account_activity SET ?",{
-                ip,
-                username,
-                location,
-                os
-              })
               const payload = {
                 name: data.data.username
               };
@@ -140,9 +128,7 @@ router.post("/login", (req, res) => {
 });
 
 router.post("/password/change", auth.checkToken, (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  const new_password = req.body.new_password;
+  const {username, password, new_password} = req.body;
 
   axios.post('https://oneauth.do/api/validate/password/change', {
     username,
@@ -218,37 +204,7 @@ router.post("/email/validate", auth.checkToken, (req, res) => {
       })
     })
 });
-router.get("/ip/:ip", (req,res)=>{
-  http.get('http://ip-api.com/json/'+req.params.ip, (resp) => {
-    let data = ''
-    resp.on('data', (chunk) => {
-      data += chunk;
-    });
-  
-    resp.on('end', () => {
-      data = JSON.parse(data)
-      data = data.city+', '+data.regionName+', '+data.country
-      res.json({
-        success: true,
-        location: data
-      })
-    });
-  })
-})
-router.post("/set/token", auth.checkToken, (req,res)=>{
-  const username = req.body.username
-  const token = req.body.token
-  console.log(token)
-  connection.query("UPDATE user SET ? WHERE username = "+mysql.escape(username),{
-    '2fa': token
-  }, (err,result)=>{
-    if(err){console.log(err);res.json({success: false})}else{
-      res.json({
-        success: true
-      })
-    }
-  })
-})
+
 
 module.exports = router;
 

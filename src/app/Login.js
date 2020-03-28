@@ -114,10 +114,9 @@ class Login extends Component{
                   type="submit"
                   className="btn btn-large waves-effect waves-light hoverable"
                 >
-                  <strong>Login</strong>
+                  <strong>Iniciar Sesion</strong>
                 </button>
                 <p style={{textAlign: 'center'}} className="grey-text text-darken-1">
-                <Link to="/auth/recover">Forgot your password?</Link>
               </p>
               </div>
             </form>
