@@ -1,3 +1,4 @@
+create database Supermercado;
 use Supermercado;
 
 CREATE TABLE Cliente (
@@ -113,4 +114,3 @@ ALTER TABLE `Persona` ADD CONSTRAINT `Persona_fk1` FOREIGN KEY (`ID_direccion`) 
 ALTER TABLE `Pedido_articulos` ADD CONSTRAINT `Pedido_articulos_fk0` FOREIGN KEY (`ID_pedido`) REFERENCES `Pedido`(`ID_pedido`);
 
 ALTER TABLE `Pedido_articulos` ADD CONSTRAINT `Pedido_articulos_fk1` FOREIGN KEY (`ID_producto`) REFERENCES `Producto`(`ID_producto`);
-

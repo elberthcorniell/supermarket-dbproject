@@ -1,6 +1,10 @@
--- 3
+use Supermercado;
+SET GLOBAL log_bin_trust_function_creators = 1;
+
+-- Consulta de compra por año, mes, producto. (de los clientes)
+
 CREATE PROCEDURE sp_ConsultaCompras(
-	in ID_cliente)
+ID_cliente char(11))
 BEGIN
 	select year(pe.Fecha_realizacion) as Año, month(pe.Fecha_realizacion) as Mes, pr.Nombre
 	from Pedido as pe
@@ -11,49 +15,13 @@ BEGIN
 	where pe.ID_cliente = @ID_cliente
 	group by Año, Mes, pr.Nombre
 	order by Año, Mes, pr.Nombre;
-END
+END;
 
+-- Consulta del mensajero con más entregas realizadas en un rango de fecha.
 
--- 8
-CREATE PROCEDURE sp_EliminarProducto(
-	in ID char(11))
-BEGIN
-	delete from Producto
-    where ID_producto = ID
-END
-
-
--- 7
-CREATE PROCEDURE sp_AgregarProducto(
-	in ID_producto char(11),
-    in ID_categoria int,
-    in Nombre varchar(255),
-    in Precio float,
-    in Oferta float,
-    in Cantidad int,
-    in Estado varchar(15),
-    in Fecha_expiracion datetime,
-    in Imagen varchar(500))
-BEGIN
-	insert into Producto
-	values (ID_producto,ID_categoria,Nombre,Precio,Oferta,Cantidad,Estado,Fecha_expiracion,Imagen);
-END
-
-
--- 6
-CREATE PROCEDURE sp_ActualizarEstadoProducto(
-	in ID char(11),
-    in Estado_producto varchar(15))
-BEGIN
-	update Producto
-    set Estado = Estado_producto
-    where ID_producto = ID;
-END
-
--- 5
 CREATE PROCEDURE sp_TopMensajero(
-	in fecha_incial datetime,
-    in fecha_final datetime)
+fecha_incial datetime,
+fecha_final datetime)
 BEGIN
 	select m.ID_mensajero, p.Cedula, p.Nombre, p.Apellido, p.telefono, count(pe.ID_mensajero) as Cantidad
 	from Mensajero as m
@@ -64,15 +32,80 @@ BEGIN
 	where pe.Fecha_realizacion > fecha_incial
 	and Fecha_realizacion < fecha_final
 	group by pe.ID_mensajero
-    order by Cantidad desc
-    limit 1;
-END
+    order by Cantidad desc limit 1;
+END;
 
+-- Función que actualice el estado de un producto de disponible (D) a no disponible (N).
 
+create function ActualizarEstadoProducto(
+ID char(11),
+Estado_producto varchar(15))
+returns int
+BEGIN
+    declare resp int;
+    set resp =0;
+	update Producto
+    set Estado = Estado_producto
+    where ID_producto = ID;
+    set resp =1;
+    return(resp);
+END;
 
+-- Función que ingrese un producto a inventario.
 
+create function AgregarProducto(
+ID_producto char(11),
+ID_categoria int,
+Nombre varchar(255),
+Precio float,
+Oferta float,
+Cantidad int,
+Estado varchar(15),
+Fecha_expiracion datetime,
+Imagen varchar(500))
+returns int
+BEGIN
+    declare resp int;
+    set resp =0;
+	insert into Producto
+	values (ID_producto,ID_categoria,Nombre,Precio,Oferta,Cantidad,Estado,Fecha_expiracion,Imagen);
+    set resp=1;
+	return(resp);
+END;
 
+-- Función que elimine un producto de inventario.
 
+create function EliminarProducto(
+ID char(11))
+returns int
+BEGIN
+    declare resp int;
+    set resp=0;
+	delete from Producto
+    where ID_producto = ID;
+    set resp =1;
+    return(resp);
+END;
 
+-- Función que muestre los clientes que más compran.
 
+create procedure sp_TopClientesCompras()
+begin
+    select Cliente.ID_cliente, Cliente.Cedula, count(Pedido.ID_pedido) `Numero de compras`
+    from Pedido left join Cliente
+    on Cliente.ID_cliente = Pedido.ID_cliente
+    group by Cliente.ID_cliente
+    order by `Numero de compras` DESC;
+end;
 
+-- Función que muestre los productos más vendidos.
+
+create procedure sp_TopProductos()
+begin
+    select pr.ID_producto, pr.Nombre, pr.Precio, sum(pa.Cantidad) as Cantidad
+	from Producto as pr
+	join Pedido_articulos as pa
+	on pr.ID_producto = pa.ID_producto
+	group by pr.ID_producto
+	order by Cantidad DESC;
+end;
