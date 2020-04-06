@@ -39,7 +39,7 @@ CREATE TABLE `Producto` (
 	`Oferta` FLOAT DEFAULT '0.00',
 	`Cantidad` int NOT NULL DEFAULT '1',
 	`Estado` varchar(15) NOT NULL,
-	`Fecha_expiracion` DATETIME,
+	`Fecha_expiracion` DATE,
 	`Imagen` varchar(500),
 	PRIMARY KEY (`ID_producto`)
 );
