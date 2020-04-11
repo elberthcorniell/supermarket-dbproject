@@ -25,7 +25,11 @@ let checkToken = (req, res, next) => {
             message: 'Token is not valid'
           });
         } else {
-          req.body.username = decodedValue.name
+          req.body.ID_cuenta = decodedValue.ID_cuenta
+          req.body.ID_cliente = decodedValue.ID_cliente
+          req.body.Tipo = decodedValue.Tipo
+          req.body.Cedula = decodedValue.Cedula
+          req.body.ID_cliente = decodedValue.ID_cliente
           req.decoded = decoded;
           next();
         }

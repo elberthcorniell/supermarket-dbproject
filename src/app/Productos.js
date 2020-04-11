@@ -29,6 +29,7 @@ export default class Productos extends Component {
     }
     componentDidMount() {
         this.getCategorias()
+        this.verify()
         const urlParams = new URLSearchParams(window.location.search);
         const categoria = urlParams.get('categoria');
         this.setState({
@@ -59,7 +60,6 @@ export default class Productos extends Component {
                 }
             })
     }
-
     getCategoria() {
         fetch(`/api/market/productos/${this.state.categoria}`)
             .then(res => res.json())
@@ -72,6 +72,68 @@ export default class Productos extends Component {
                 } else {
 
                 }
+            })
+    }
+    handleCart(ID_producto, Cantidad) {
+        fetch('/api/validate/verify', {
+            method: 'POST',
+            /*body: JSON.stringify(this.state),*/
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem('authtoken')
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    fetch('/api/market/addtocart', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            ID_producto,
+                            Cantidad
+                        }),
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'authorization': localStorage.getItem('authtoken')
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                toaster.notify('Producto añadido al carrito', {
+                                    duration: 10000,
+                                    position: 'bottom-right',
+                                })
+                            } else {
+                                toaster.notify('Error al intentar agregar producto', {
+                                    duration: 10000,
+                                    position: 'bottom-right',
+                                })
+                            }
+                        })
+
+
+                } else {
+                    window.location.replace('/auth/login')
+                }
+            })
+    }
+    verify() {
+        fetch('/api/validate/verify', {
+            method: 'POST',
+            /*body: JSON.stringify(this.state),*/
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem('authtoken')
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const logged = data.success
+                this.setState({ logged })
             })
     }
     formatDate(date) {
@@ -115,12 +177,18 @@ export default class Productos extends Component {
                             </NavDropdown>
                         </Nav>
                         <Form inline>
-                            <Button
-                                onClick={() => { window.location.replace('/auth/register') }}
-                            >Crear Cuenta</Button>
-                            <Button
-                                onClick={() => { window.location.replace('/auth/login') }}
-                            >Iniciar Sesion</Button>
+                            {this.state.logged ?
+                                <i className="material-icons">shopping_cart</i>
+                                :
+                                <div>
+                                    <Button
+                                        onClick={() => { window.location.replace('/auth/register') }}
+                                    >Crear Cuenta</Button>
+                                    <Button
+                                        onClick={() => { window.location.replace('/auth/login') }}
+                                    >Iniciar Sesion</Button>
+                                </div>
+                            }
                         </Form>
                     </Navbar.Collapse>
                 </Navbar>
@@ -130,29 +198,30 @@ export default class Productos extends Component {
                         {this.state.productos.map(data => {
                             return (
                                 <Col lg={3}>
-                                <Card style={{marginBottom: 20, textAlign: 'center', height: 350}}>
-                                    <Card.Body>
-                                        <img src={data.Imagen} height={150} width={150} />
-                                        <p>{data.Nombre}</p>
-                                        <p 
-                                            style={{
-                                                fontWeight: 700,
-                                                position: 'absolute',
-                                                bottom: 60,
-                                                width: 'calc(100% - 40px)'
-                                            }}>
-                                            RD${data.Precio}</p>
-                                        <Button
-                                            style={{
-                                                width: 'calc(100% - 40px)',
-                                                position: 'absolute',
-                                                bottom: 20,
-                                                right: 20   
-                                            }}
-                                        ><i className="material-icons">add_shopping_cart</i></Button>
-                                    </Card.Body>
+                                    <Card style={{ marginBottom: 20, textAlign: 'center', height: 350 }}>
+                                        <Card.Body>
+                                            <img src={data.Imagen} height={150} width={150} />
+                                            <p>{data.Nombre}</p>
+                                            <p
+                                                style={{
+                                                    fontWeight: 700,
+                                                    position: 'absolute',
+                                                    bottom: 60,
+                                                    width: 'calc(100% - 40px)'
+                                                }}>
+                                                RD${data.Precio}</p>
+                                            <Button
+                                                onClick={() => { this.handleCart(data.ID_producto, 1) }}
+                                                style={{
+                                                    width: 'calc(100% - 40px)',
+                                                    position: 'absolute',
+                                                    bottom: 20,
+                                                    right: 20
+                                                }}
+                                            ><i className="material-icons">add_shopping_cart</i></Button>
+                                        </Card.Body>
 
-                                </Card>
+                                    </Card>
                                 </Col>
                             )
                         })}

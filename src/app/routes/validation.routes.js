@@ -59,72 +59,39 @@ router.post("/register/direccion", (req, res) => {
 router.post("/login", (req, res) => {
   const { errors, isValid } = validateLoginInput(req.body);
   if (!isValid) {
-    return res.status(400).json(errors);
+    return res.json(errors);
   }
-  const { username, password } = req.body;
-  axios.post('https://oneauth.do/api/validate/login', {
-    username,
-    password
-  })
-    .then(data => {
-      if (data.data.success) {
-        connection.query("SELECT username FROM user WHERE username = " + mysql.escape(username), (err, result) => {
+  const { Correo_electronico, Contraseña } = req.body;
+        connection.query("SELECT persona.Cedula, cuenta.ID_cuenta, cliente.ID_cliente, cuenta.Tipo FROM cuenta JOIN persona ON cuenta.ID_cuenta = persona.ID_cuenta JOIN cliente ON cliente.Cedula = persona.Cedula WHERE Correo_electronico = " + mysql.escape(Correo_electronico)+" AND Contraseña = "+mysql.escape(Contraseña), (err, result) => {
           if (err) { console.log(err); res.json({ success: false }) } else {
             if (result.length >= 1) {
+              const {ID_cuenta, ID_cliente, Tipo, Cedula} = result[0]
               const payload = {
-                name: data.data.username
+                Correo_electronico,
+                ID_cuenta, 
+                ID_cliente, 
+                Tipo, 
+                Cedula
               };
-
               jwt.sign(payload, keys.secretOrKey,
                 {
-                  expiresIn: 1800 // 3 min in seconds
+                  expiresIn: 18000 // 3 min in seconds
                 },
                 (err, token) => {
                   res.json({
                     success: true,
-                    token: token,
-                    username
+                    token: token
                   });
                 }
               );
             } else {
-              connection.query("INSERT INTO user SET ?", {
-                username,
-                email: data.data.email
-              }, (err, resutl) => {
-                if (err) { console.log(err); res.status(400).json({ success: false }) } else {
-                  const payload = {
-                    name: username
-                  };
-    
-                  jwt.sign(payload, keys.secretOrKey,
-                    {
-                      expiresIn: 18000
-                    },
-                    (err, token) => {
-                      res.json({
-                        success: true,
-                        token: token,
-                        username
-                      });
-                    }
-                  );
-                }
+              res.json({
+                success: false,
+                username_err: 'Wrong credentials' 
               })
             }
           }
         })
-
-      } else {
-        res.json(data.data)
-      }
-    })
-    .catch((error) => {
-      res.json({
-        success: false,
-        password_err: 'Network failed'
-      })
-    })
 });
 
 router.post("/password/change", auth.checkToken, (req, res) => {
@@ -204,7 +171,10 @@ router.post("/email/validate", auth.checkToken, (req, res) => {
       })
     })
 });
-
-
+router.post("/verify", auth.checkToken, (req, res)=>{
+  res.json({
+    success: true
+  })
+})
 module.exports = router;
 
