@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import Home from './Home';
+import Productos from './Productos';
 import toaster from 'toasted-notes';
 
 class Backoffice extends Component {
@@ -40,6 +41,10 @@ class Backoffice extends Component {
             <Router>
                 <div className="App">
                         <Route exact path="/" render={(props) => <Home {...props}
+                            token={this.state.token}
+                            />}
+                        />
+                        <Route exact path="/productos" render={(props) => <Productos {...props}
                             token={this.state.token}
                             />}
                         />

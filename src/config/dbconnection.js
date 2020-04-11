@@ -5,6 +5,7 @@ module.exports = () =>{
         host: 'localhost',
         user: 'root',
         password: '',
-        database: 'inverte_18'
+        database: 'supermercado',
+        multipleStatements: true
     });
 }

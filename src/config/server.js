@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({
   }));
 app.use(morgan('dev'))
 .use(express.json())
-.use('/api/fund',  require ('../app/routes/fund.routes'))
+.use('/api/market',  require ('../app/routes/market.routes'))
 .use('/api/validate', require ('../app/routes/validation.routes'))
 app.get('/auth/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/v/index.html'))

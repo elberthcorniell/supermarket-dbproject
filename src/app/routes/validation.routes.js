@@ -14,45 +14,45 @@ const http = require('http')
 setInterval(() => {
   connection.query("SELECT 1")
 }, 5000)
+
+function generateRandomID(){
+  return Math.random().toString(36).substring(7);
+}
+
 router.post("/register", (req, res) => {
-  const {username, email, password} = req.body;
-  const address = '';
-  connection.query("SELECT username FROM user WHERE network = 1 AND username = " + mysql.escape(sponsor), (err, result1) => {
-    if (err) { console.log(err); res.status(400).json({ success: false }) } else {
-      if (result1.length >= 1) {
-
-        axios.post('https://oneauth.do/api/validate/register', {
-          username2: username,
-          password2: password,
-          email2: email
-        })
-          .then(data => {
-            if (data.data.success == true) {
-
-              connection.query("INSERT INTO user SET ?", {
-                username,
-                sponsor,
-                email
-              }, (err, resutl) => {
-                if (err) { console.log(err); res.status(400).json({ success: false }) } else {
-                  res.json({
-                    success: true
-                  })
-                }
-              })
-
-            } else {
-              res.json(data.data)
-            }
-          }).catch(err => {
-            console.log(err)
-          })
-      } else {
-        res.json({
-          success: false,
-          sponsor_err: 'Invalid sponsor'
-        })
-      }
+  var {Correo_electronico, Contraseña, Tipo} = req.body;
+  connection.query("INSERT INTO cuenta SET ?; SELECT ID_Cuenta FROM cuenta WHERE Correo_electronico = "+mysql.escape(Correo_electronico) ,{
+    Correo_electronico,
+    Contraseña,
+    Tipo
+  }, (err, result) => {
+    if (err) {console.log(err),res.json({ success: false, msg: 'Correo electronico ya ha sido utilizado' }) } else {
+      const{ID_Cuenta} = result[1][0]
+      res.json({
+        success: true,
+        msg: 'Account successfully created',
+        ID_Cuenta
+      })
+    }
+  })
+})
+router.post("/register/direccion", (req, res) => {
+  var {Municipio, Sector, Barrio, Calle, N_Residencia} = req.body;
+  const ID_direccion = generateRandomID()
+  connection.query("INSERT INTO direccion SET ?",{
+    ID_direccion,
+    Municipio, 
+    Sector, 
+    Barrio, 
+    Calle, 
+    N_Residencia
+  }, (err, result) => {
+    if (err) {console.log(err),res.json({ success: false, msg: 'Error actualizando la direccion.' }) } else {
+      res.json({
+        success: true,
+        msg: 'Direccion creada correctamente',
+        ID_direccion
+      })
     }
   })
 })

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
     Card,
     Col,
@@ -18,18 +18,24 @@ import {
 import toaster from 'toasted-notes';
 import Glider from '../public/js/glider'
 
-export default class Home extends Component {
+export default class Productos extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            top10_productos: [],
+            productos: [],
             categorias: []
         };
         this.handleChange = this.handleChange.bind(this);
     }
     componentDidMount() {
-        this.getTop10()
         this.getCategorias()
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoria = urlParams.get('categoria');
+        this.setState({
+            categoria
+        }, () => {
+            this.getCategoria()
+        })
     }
     componentDidUpdate() {
     }
@@ -39,7 +45,7 @@ export default class Home extends Component {
             [id]: value
         })
     }
-    
+
     getCategorias() {
         fetch('/api/market/getCategorias')
             .then(res => res.json())
@@ -53,14 +59,15 @@ export default class Home extends Component {
                 }
             })
     }
-  
-    getTop10(limit) {
-        fetch('/api/market/gettop10')
+
+    getCategoria() {
+        fetch(`/api/market/productos/${this.state.categoria}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    const { productos, titulo } = data
                     this.setState({
-                        transactions: data.result
+                        productos, titulo
                     })
                 } else {
 
@@ -100,12 +107,10 @@ export default class Home extends Component {
                         <Nav className="mr-auto">
                             <Nav.Link href="#home">Home</Nav.Link>
                             <NavDropdown title="Productos" id="basic-nav-dropdown">
-                                {this.state.categorias.map(data=>{
-                                    return(                                      
-                                    <Link to={`/productos?categoria=${data.ID_categoria}`}  className="dropdown-item">{data.Nombre}</Link>
-                                    )/*
-                                    <NavDropdown.Divider />
-                                    <NavDropdown.Item href="#action/3.4">Todos los productos</NavDropdown.Item>*/
+                                {this.state.categorias.map(data => {
+                                    return (
+                                        <a href={`/productos?categoria=${data.ID_categoria}`} className="dropdown-item">{data.Nombre}</a>
+                                    )
                                 })}
                             </NavDropdown>
                         </Nav>
@@ -119,25 +124,39 @@ export default class Home extends Component {
                         </Form>
                     </Navbar.Collapse>
                 </Navbar>
-                <Row style={{ width: '100%', height: 'fit-content', backgroundImage: 'linear-gradient(45deg, green, white, white)' }}>
-                    <Col xs={8}>
-                        <Carousel>
-
-                        </Carousel>
-                    </Col>
-                    <Col xs={4}>
-                        <img style={{ padding: 10 }} src='../assets/images/logo.png' />
-                    </Col>
-                </Row>
                 <Container>
-                    <h1>Productos</h1>
-                    {this.state.top10_productos.map(data => {
-                        return (
-                            <Card>
+                    <h1>{this.state.titulo}</h1>
+                    <Row style={{ width: '100%', height: 'fit-content' }}>
+                        {this.state.productos.map(data => {
+                            return (
+                                <Col lg={3}>
+                                <Card style={{marginBottom: 20, textAlign: 'center', height: 350}}>
+                                    <Card.Body>
+                                        <img src={data.Imagen} height={150} width={150} />
+                                        <p>{data.Nombre}</p>
+                                        <p 
+                                            style={{
+                                                fontWeight: 700,
+                                                position: 'absolute',
+                                                bottom: 60,
+                                                width: 'calc(100% - 40px)'
+                                            }}>
+                                            RD${data.Precio}</p>
+                                        <Button
+                                            style={{
+                                                width: 'calc(100% - 40px)',
+                                                position: 'absolute',
+                                                bottom: 20,
+                                                right: 20   
+                                            }}
+                                        ><i className="material-icons">add_shopping_cart</i></Button>
+                                    </Card.Body>
 
-                            </Card>
-                        )
-                    })}
+                                </Card>
+                                </Col>
+                            )
+                        })}
+                    </Row>
                 </Container>
             </div>
         )

@@ -1,5 +1,5 @@
-create database Supermercado;
-use Supermercado;
+-- create database Supermercado;
+-- use Supermercado;
 
 CREATE TABLE Cliente (
 	ID_cliente char(11) NOT NULL,
