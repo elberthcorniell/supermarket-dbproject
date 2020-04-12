@@ -7,7 +7,7 @@ import {
     Navbar
 } from "react-bootstrap"
 
-export default class Navigationbar extends Component {
+class Navigationbar extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -77,6 +77,96 @@ export default class Navigationbar extends Component {
                     </Nav>
                     <Form inline>
                         {this.state.logged ?
+                            <NavDropdown title="User" id="basic-nav-dropdown">
+                                <a href='/carrito' ><i
+                                    style={{
+                                        cursor: 'pointer',
+                                    }}
+                                    className="material-icons">
+                                    shopping_cart</i> carrito</a>
+                                <a href={`/retroalimentacion`} className="dropdown-item">Retroalimentacion</a>
+                                <a href="#" onClick={() => { localStorage.setItem('authtoken', '');(window.location.replace('/')) }} className="dropdown-item">Cerrar Sesion</a>
+                            </NavDropdown>
+                            :
+                            <div>
+                                <Button
+                                    onClick={() => { window.location.replace('/auth/register') }}
+                                >Crear Cuenta</Button>
+                                <Button
+                                    onClick={() => { window.location.replace('/auth/login') }}
+                                >Iniciar Sesion</Button>
+                            </div>
+                        }
+                    </Form>
+                </Navbar.Collapse>
+            </Navbar>
+        )
+    }
+}
+
+class Adminbar extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            productos: [],
+            categorias: [],
+            cart: []
+        };
+        this.handleChange = this.handleChange.bind(this);
+    }
+    componentDidMount() {
+        this.getCategorias()
+        this.verify()
+    }
+    componentDidUpdate() {
+    }
+    handleChange(e) {
+        const { id, value } = e.target;
+        this.setState({
+            [id]: value
+        })
+    }
+
+    getCategorias() {
+        fetch('/api/market/getCategorias')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    this.setState({
+                        categorias: data.result
+                    })
+                } else {
+
+                }
+            })
+    }
+    verify() {
+        fetch('/api/validate/verify', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem('authtoken')
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                const logged = data.success
+                this.setState({ logged })
+            })
+    }
+    render() {
+        return (
+            <Navbar bg="dark" expand="lg">
+                <Navbar.Brand href="/"><img src='../assets/images/logo_text.png' height='90' /></Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="mr-auto">
+                        <Nav.Link href="/admin/productos">Productos</Nav.Link>
+                        <Nav.Link href="/productos?categoria=ofertas">Ofertas</Nav.Link>
+                    </Nav>
+                    <Form inline>
+                        {this.state.logged ?
                             <NavDropdown title="Productos" id="basic-nav-dropdown">
                                 <a href='/carrito' ><i
                                     style={{
@@ -102,4 +192,8 @@ export default class Navigationbar extends Component {
             </Navbar>
         )
     }
+}
+module.exports = {
+    Navigationbar,
+    Adminbar
 }

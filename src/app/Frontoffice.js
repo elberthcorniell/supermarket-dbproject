@@ -4,7 +4,7 @@ import Home from './Home';
 import Carrito from './Carrito';
 import Productos from './Productos';
 import Retroalimentacion from './Retroalimentacion';
-import Navigationbar from './Navbar';
+import {Navigationbar} from './Navbar';
 
 export default class Frontoffice extends Component {
     constructor(props) {

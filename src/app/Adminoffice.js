@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import Home from './Home';
 import Carrito from './Carrito';
 import Productos from './Productos';
 import Retroalimentacion from './Retroalimentacion';
-import Navigationbar from './Navbar';
+import { Adminbar } from './Navbar';
 
 export default class Adminoffice extends Component {
     constructor(props) {
         super(props);
         this.state = {
-           
+
         };
     }
     componentDidMount() {
@@ -21,23 +20,12 @@ export default class Adminoffice extends Component {
         return (
             <Router>
                 <div className="App">
-                    <Navigationbar />
-                        <Route exact path="/" render={(props) => <Home {...props}
-                            token={this.state.token}
-                            />}
-                        />
-                        <Route exact path="/productos" render={(props) => <Productos {...props}
-                            token={this.state.token}
-                            />}
-                        />
-                        <Route exact path="/carrito" render={(props) => <Carrito {...props}
-                            token={this.state.token}
-                            />}
-                        /><Route exact path="/retroalimentacion" render={(props) => <Retroalimentacion {...props}
+                    <Adminbar />
+                    <Route exact path="/admin/" render={(props) => <Productos {...props}
                         token={this.state.token}
-                        />}
+                    />}
                     />
-                    </div>
+                </div>
             </Router>
         )
     }

@@ -35,7 +35,6 @@ export default class Carrito extends Component {
     getCarrito() {
         fetch('/api/market/getcart', {
             method: 'POST',
-            /*body: JSON.stringify(this.state),*/
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -48,8 +47,6 @@ export default class Carrito extends Component {
                     const { cart } = data
                     this.setState({
                         cart
-                    }, () => {
-                        console.log(this.state.cart)
                     })
                 }
             })
@@ -81,6 +78,32 @@ export default class Carrito extends Component {
                     })
                 }
             })
+    }
+    deleteProduct(ID_producto){
+        fetch('/api/market/eliminarproducto', {
+            method: 'DELETE',
+            body: JSON.stringify({ ID_pedido: this.state.cart[0].ID_pedido, ID_producto }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem('authtoken')
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success){
+                this.componentDidMount()
+                toaster.notify('Producto eliminado satisfactoriamente', {
+                    duration: 10000,
+                    position: 'bottom-right',
+                })
+            }else{
+                toaster.notify('Error eliminando producto', {
+                    duration: 10000,
+                    position: 'bottom-right',
+                })
+            }
+        })
     }
     formatDate(date) {
         date = new Date(date)
@@ -116,8 +139,7 @@ export default class Carrito extends Component {
                         marginTop: -45
                     }}
                     onClick={() => { this.setState({ unlock_modal: true }) }}
-                >
-                    Enviar pedido</Button>
+                >Enviar pedido</Button>
                 <Row style={{ width: '100%', height: 'fit-content' }}>
                     {this.state.cart.length > 0 ?
                         <Table striped bordered hover>
@@ -133,7 +155,9 @@ export default class Carrito extends Component {
                                 {this.state.cart.map(data => {
                                     return (
                                         <tr>
-                                            <td>{data.Nombre}</td>
+                                            <td>{data.Nombre} 
+                                            <i style={{ cursor: 'pointer', float: 'right' }} onClick={()=>{this.deleteProduct(data.ID_producto)}} className="material-icons">delete</i>
+                                            <i style={{ cursor: 'pointer', float: 'right' }} className="material-icons">create</i></td>
                                             <td>{data.Cantidad}</td>
                                             <td>{(data.Precio || 0).toFixed(2)}</td>
                                             <td style={{textAlign: 'right'}}>{(data.Total || 0).toFixed(2)}</td>

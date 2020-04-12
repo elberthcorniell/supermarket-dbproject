@@ -28,11 +28,11 @@ app.use(morgan('dev'))
 app.get('/auth/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/v/index.html'))
 })
-.get('/*', (req,res)=>{
-  res.sendFile(path.join(__dirname, '../public/app/index.html'))
-})
 .get('/admin/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/app/admin.html'))
+})
+.get('/*', (req,res)=>{
+  res.sendFile(path.join(__dirname, '../public/app/index.html'))
 })
 
 app.use(upload())
