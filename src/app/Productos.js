@@ -6,14 +6,7 @@ import {
     Container,
     Row,
     Button,
-    Form,
-    Table,
-    Modal,
-    Carousel,
-    Nav,
-    NavDropdown,
-    FormControl,
-    Navbar
+    Form
 } from "react-bootstrap"
 import toaster from 'toasted-notes';
 import Glider from '../public/js/glider'
@@ -28,8 +21,6 @@ export default class Productos extends Component {
         this.handleChange = this.handleChange.bind(this);
     }
     componentDidMount() {
-        this.getCategorias()
-        this.verify()
         const urlParams = new URLSearchParams(window.location.search);
         const categoria = urlParams.get('categoria');
         this.setState({
@@ -46,25 +37,12 @@ export default class Productos extends Component {
             [id]: value
         })
     }
-
-    getCategorias() {
-        fetch('/api/market/getCategorias')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        categorias: data.result
-                    })
-                } else {
-
-                }
-            })
-    }
     getCategoria() {
         fetch(`/api/market/productos/${this.state.categoria}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    console.log(data)
                     const { productos, titulo } = data
                     this.setState({
                         productos, titulo
@@ -75,6 +53,7 @@ export default class Productos extends Component {
             })
     }
     handleCart(ID_producto, Cantidad) {
+        Cantidad = parseInt(Cantidad)
         fetch('/api/validate/verify', {
             method: 'POST',
             /*body: JSON.stringify(this.state),*/
@@ -120,22 +99,6 @@ export default class Productos extends Component {
                 }
             })
     }
-    verify() {
-        fetch('/api/validate/verify', {
-            method: 'POST',
-            /*body: JSON.stringify(this.state),*/
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'authorization': localStorage.getItem('authtoken')
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                const logged = data.success
-                this.setState({ logged })
-            })
-    }
     formatDate(date) {
         date = new Date(date)
         var monthNames = [
@@ -162,43 +125,13 @@ export default class Productos extends Component {
     render() {
         return (
             <div>
-                <Navbar bg="light" expand="lg">
-                    <Navbar.Brand href="#home"><img src='../assets/images/logo_text.png' height='90' /></Navbar.Brand>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mr-auto">
-                            <Nav.Link href="#home">Home</Nav.Link>
-                            <NavDropdown title="Productos" id="basic-nav-dropdown">
-                                {this.state.categorias.map(data => {
-                                    return (
-                                        <a href={`/productos?categoria=${data.ID_categoria}`} className="dropdown-item">{data.Nombre}</a>
-                                    )
-                                })}
-                            </NavDropdown>
-                        </Nav>
-                        <Form inline>
-                            {this.state.logged ?
-                                <i className="material-icons">shopping_cart</i>
-                                :
-                                <div>
-                                    <Button
-                                        onClick={() => { window.location.replace('/auth/register') }}
-                                    >Crear Cuenta</Button>
-                                    <Button
-                                        onClick={() => { window.location.replace('/auth/login') }}
-                                    >Iniciar Sesion</Button>
-                                </div>
-                            }
-                        </Form>
-                    </Navbar.Collapse>
-                </Navbar>
                 <Container>
                     <h1>{this.state.titulo}</h1>
                     <Row style={{ width: '100%', height: 'fit-content' }}>
                         {this.state.productos.map(data => {
                             return (
                                 <Col lg={3}>
-                                    <Card style={{ marginBottom: 20, textAlign: 'center', height: 350 }}>
+                                    <Card style={{ marginBottom: 20, textAlign: 'center', height: 400 }}>
                                         <Card.Body>
                                             <img src={data.Imagen} height={150} width={150} />
                                             <p>{data.Nombre}</p>
@@ -210,8 +143,17 @@ export default class Productos extends Component {
                                                     width: 'calc(100% - 40px)'
                                                 }}>
                                                 RD${data.Precio}</p>
+                                            <Form.Control
+                                                type="number"
+                                                defaultValue={1}
+                                                value={this.state[data.ID_producto + "Cantidad"]}
+                                                id={data.ID_producto + "Cantidad"}
+                                                min={1}
+                                                max={data.Cantidad}
+                                                onChange={e => { this.handleChange(e) }}
+                                            ></Form.Control>
                                             <Button
-                                                onClick={() => { this.handleCart(data.ID_producto, 1) }}
+                                                onClick={() => { this.handleCart(data.ID_producto, this.state[data.ID_producto + "Cantidad"] || 1) }}
                                                 style={{
                                                     width: 'calc(100% - 40px)',
                                                     position: 'absolute',

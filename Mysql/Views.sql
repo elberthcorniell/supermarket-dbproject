@@ -6,7 +6,7 @@ create view Ofertas
 as
     select Producto.Nombre, Producto.Imagen, Producto.Precio, Producto.Oferta, Producto.Cantidad
     from Producto
-    where Producto.Oferta > 0.00;
+    where Producto.Oferta > 0.00 AND Producto.Oferta IS NOT NULL;
 
 -- Consulta de productos indicado tipo y cantidad existente en inventario.
 

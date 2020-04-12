@@ -31,6 +31,9 @@ app.get('/auth/*', (req,res)=>{
 .get('/*', (req,res)=>{
   res.sendFile(path.join(__dirname, '../public/app/index.html'))
 })
+.get('/admin/*', (req,res)=>{
+  res.sendFile(path.join(__dirname, '../public/app/admin.html'))
+})
 
 app.use(upload())
 app.post('/upload',auth.checkToken, (req,res)=>{

@@ -2,6 +2,7 @@ module.exports = {
     entry: {
         'bundle': './src/app/index.js',
         'office': './src/app/office.js',
+        'admin': './src/app/admin.js'
     },
     output: {
         path: __dirname+'/src/public',

@@ -45,6 +45,16 @@ router.get('/getCategorias', (req, res) => {
 })
 router.get('/productos/:categoria', (req, res) => {
   const { categoria } = req.params
+  if(categoria == 'ofertas'){
+    connection.query("SELECT * FROM Ofertas", (err, result)=>{
+      const titulo = 'Ofertas'
+      res.json({
+        success: true,
+        titulo,
+        productos: result
+      })
+    })
+  }else{
   connection.query("SELECT Nombre AS titulo FROM categoria_producto WHERE ID_categoria = " + mysql.escape(categoria), (err, result) => {
     const { titulo } = result[0]
     connection.query("SELECT * FROM producto WHERE ID_categoria = " + mysql.escape(categoria), (err, result) => {
@@ -56,12 +66,12 @@ router.get('/productos/:categoria', (req, res) => {
         })
       }
     })
-  })
+  })}
 })
 
 router.post("/addtocart", auth.checkToken, (req, res) => {
   const { ID_cliente, ID_producto, Cantidad } = req.body
-  connection.query("SELECT ID_pedido FROM pedido WHERE Activo = 1 AND Fecha_realizacion IS NULL", (err, result) => {
+  connection.query("SELECT ID_pedido FROM pedido WHERE Activo = 1 AND Fecha_realizacion IS NULL AND ID_cliente = " + mysql.escape(ID_cliente), (err, result) => {
     if (err) { res.json({ success: false }) } else {
       if (result.length > 0) {
         const { ID_pedido } = result[0]
@@ -113,22 +123,23 @@ router.post("/addtocart", auth.checkToken, (req, res) => {
   })
 })
 router.post("/getcart", auth.checkToken, (req, res) => {
-  connection.query("SELECT ID_pedido FROM pedido WHERE Activo = 1 AND Fecha_realizacion IS NULL", (err, result) => {
+  const { ID_cliente } = req.body
+  connection.query("SELECT ID_pedido FROM pedido WHERE Activo = 1 AND Fecha_realizacion IS NULL AND ID_cliente = " + mysql.escape(ID_cliente), (err, result) => {
     if (err) { res.json({ success: false }) } else {
       if (result.length > 0) {
         const { ID_pedido } = result[0]
-        connection.query("SELECT pedido_articulos.ID_pedido, pedido_articulos.ID_producto, SUM(pedido_articulos.Cantidad)" +
-          " AS Cantidad, producto.Nombre, producto.Precio , producto.Precio * SUM(pedido_articulos.Cantidad) AS Total FROM" +
-          "pedido_articulos JOIN producto ON producto.ID_producto = pedido_articulos.ID_producto GROUP BY ID_producto WHERE" +
-          " pedido_productos.ID_pedido = " + mysql.escape(ID_pedido), (err, result) => {
-            if (err) { res.json({ success: false }) } else {
+        connection.query("SELECT pedido_articulos.ID_pedido, pedido_articulos.ID_producto, SUM(pedido_articulos.Cantidad) " +
+          "AS Cantidad, producto.Nombre, producto.Precio , producto.Precio * SUM(pedido_articulos.Cantidad) AS Total FROM " +
+          "pedido_articulos JOIN producto ON producto.ID_producto  = pedido_articulos.ID_producto " +
+          `WHERE pedido_articulos.ID_pedido = ${mysql.escape(ID_pedido)} GROUP BY ID_producto`, (err, result) => {
+            if (err) { console.log(err); res.json({ success: false }) } else {
               res.json({
                 success: true,
                 cart: result
               })
             }
           })
-      }else{
+      } else {
         res.json({
           success: true,
           cart: []
@@ -137,5 +148,16 @@ router.post("/getcart", auth.checkToken, (req, res) => {
     }
   })
 })
-
+router.post("/pagarorden", auth.checkToken, (req, res)=>{
+  const {ID_pedido} = req.body
+  connection.query(`UPDATE pedido SET ? WHERE ID_pedido = ${mysql.escape(ID_pedido)}`,{
+    Fecha_realizacion: mysql.raw("CURRENT_TIMESTAMP()"),
+  }, err => {
+    if(err){console.log(err);res.json({success: false})}else{
+      res.json({
+        success: true
+      })
+    }
+  }) 
+})
 module.exports = router;
