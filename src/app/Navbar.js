@@ -77,7 +77,7 @@ class Navigationbar extends Component {
                     </Nav>
                     <Form inline>
                         {this.state.logged ?
-                            <NavDropdown title="User" id="basic-nav-dropdown">
+                            <NavDropdown title="Productos" id="basic-nav-dropdown">
                                 <a href='/carrito' ><i
                                     style={{
                                         cursor: 'pointer',
@@ -85,7 +85,7 @@ class Navigationbar extends Component {
                                     className="material-icons">
                                     shopping_cart</i> carrito</a>
                                 <a href={`/retroalimentacion`} className="dropdown-item">Retroalimentacion</a>
-                                <a href="#" onClick={() => { localStorage.setItem('authtoken', '');(window.location.replace('/')) }} className="dropdown-item">Cerrar Sesion</a>
+                                <a href="#" onClick={() => { localStorage.setItem('authtoken', ''); (window.location.replace('/')) }} className="dropdown-item">Cerrar Sesion</a>
                             </NavDropdown>
                             :
                             <div>
@@ -115,7 +115,6 @@ class Adminbar extends Component {
         this.handleChange = this.handleChange.bind(this);
     }
     componentDidMount() {
-        this.getCategorias()
         this.verify()
     }
     componentDidUpdate() {
@@ -125,20 +124,6 @@ class Adminbar extends Component {
         this.setState({
             [id]: value
         })
-    }
-
-    getCategorias() {
-        fetch('/api/market/getCategorias')
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.setState({
-                        categorias: data.result
-                    })
-                } else {
-
-                }
-            })
     }
     verify() {
         fetch('/api/validate/verify', {
@@ -151,8 +136,13 @@ class Adminbar extends Component {
         })
             .then(res => res.json())
             .then(data => {
-                const logged = data.success
-                this.setState({ logged })
+                if (data.success && (data.Tipo == 'Admin' || data.Tipo == 'Mensajero')) {
+                    const logged = data.success
+                    const { Tipo } = data
+                    this.setState({ logged, Tipo })
+                } else {
+                    window.location.replace("/auth/login")
+                }
             })
     }
     render() {
@@ -162,8 +152,17 @@ class Adminbar extends Component {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="mr-auto">
-                        <Nav.Link href="/admin/productos">Productos</Nav.Link>
-                        <Nav.Link href="/productos?categoria=ofertas">Ofertas</Nav.Link>
+                        {
+                            this.state.Tipo == 'Admin' ?
+                                <span>
+                                    <Nav.Link href="/admin/productos">Productos</Nav.Link>
+                                    <Nav.Link href="/admin/clientes">Clientes</Nav.Link>
+                                    <Nav.Link href="/admin/mensajeros">Mensajeros</Nav.Link>
+                                </span>
+                                :
+                                <Nav.Link href="/admin/misentregas">Mis entregas</Nav.Link>
+                        }
+
                     </Nav>
                     <Form inline>
                         {this.state.logged ?
@@ -175,7 +174,7 @@ class Adminbar extends Component {
                                     className="material-icons">
                                     shopping_cart</i> carrito</a>
                                 <a href={`/retroalimentacion`} className="dropdown-item">Retroalimentacion</a>
-                                <a href="#" onClick={() => { localStorage.setItem('authtoken', '');(window.location.replace('/')) }} className="dropdown-item">Cerrar Sesion</a>
+                                <a href="#" onClick={() => { localStorage.setItem('authtoken', ''); (window.location.replace('/')) }} className="dropdown-item">Cerrar Sesion</a>
                             </NavDropdown>
                             :
                             <div>

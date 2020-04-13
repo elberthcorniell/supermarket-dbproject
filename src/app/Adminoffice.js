@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import Carrito from './Carrito';
-import Productos from './Productos';
-import Retroalimentacion from './Retroalimentacion';
+import Admin_productos from './Admin_productos';
 import { Adminbar } from './Navbar';
 
 export default class Adminoffice extends Component {
@@ -21,7 +19,7 @@ export default class Adminoffice extends Component {
             <Router>
                 <div className="App">
                     <Adminbar />
-                    <Route exact path="/admin/" render={(props) => <Productos {...props}
+                    <Route exact path="/admin/productos" render={(props) => <Admin_productos {...props}
                         token={this.state.token}
                     />}
                     />

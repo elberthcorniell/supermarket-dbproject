@@ -57,7 +57,7 @@ router.get('/productos/:categoria', (req, res) => {
   } else {
     connection.query("SELECT Nombre AS titulo FROM categoria_producto WHERE ID_categoria = " + mysql.escape(categoria), (err, result) => {
       const { titulo } = result[0]
-      connection.query("SELECT * FROM producto WHERE ID_categoria = " + mysql.escape(categoria), (err, result) => {
+      connection.query("SELECT * FROM producto WHERE Estado = 'Disponible' AND ID_categoria = " + mysql.escape(categoria), (err, result) => {
         if (err) { res.json({ success: false }) } else {
           res.json({
             success: true,
@@ -169,6 +169,13 @@ router.delete("/eliminarproducto", auth.checkToken, (req, res) => {
         success: true
       })
     }
+  })
+})
+router.post("/cambiarestado", auth.checkToken, (req, res)=>{
+  const {Tipo, ID_producto, Estado} = req.body 
+  connection.query(`SELECT ActualizarEstadoProducto(${mysql.escape(ID_producto)}, ${mysql.escape(Estado)})`, (err, result)=>{
+    console.log(err)
+    console.log(result);
   })
 })
 module.exports = router;

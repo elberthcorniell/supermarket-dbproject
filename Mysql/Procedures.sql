@@ -44,7 +44,7 @@ returns int
 BEGIN
     declare resp int;
     set resp =0;
-	update Producto
+	update Producto	
     set Estado = Estado_producto
     where ID_producto = ID;
     set resp =1;
@@ -100,11 +100,5 @@ end;
 
 -- Función que muestre los productos más vendidos.
 
-create view view_TopProductos	 AS
-    select pr.ID_producto, pr.Nombre, pr.Precio, sum(pa.Cantidad) as Cantidad
-	from Producto as pr
-	join Pedido_articulos as pa
-	on pr.ID_producto = pa.ID_producto
-	group by pr.ID_producto
-	order by Cantidad DESC LIMIT 10
+
 	
