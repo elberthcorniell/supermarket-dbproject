@@ -77,7 +77,7 @@ class Navigationbar extends Component {
                     </Nav>
                     <Form inline>
                         {this.state.logged ?
-                            <NavDropdown title="Productos" id="basic-nav-dropdown">
+                            <NavDropdown title="Menu" id="basic-nav-dropdown">
                                 <a href='/carrito' ><i
                                     style={{
                                         cursor: 'pointer',
@@ -160,13 +160,13 @@ class Adminbar extends Component {
                                     <Nav.Link href="/admin/mensajeros">Mensajeros</Nav.Link>
                                 </span>
                                 :
-                                <Nav.Link href="/admin/misentregas">Mis entregas</Nav.Link>
+                                <Nav.Link href="/admin/entregas">Mis entregas</Nav.Link>
                         }
 
                     </Nav>
                     <Form inline>
                         {this.state.logged ?
-                            <NavDropdown title="Productos" id="basic-nav-dropdown">
+                            <NavDropdown title="Menu" id="basic-nav-dropdown">
                                 <a href='/carrito' ><i
                                     style={{
                                         cursor: 'pointer',

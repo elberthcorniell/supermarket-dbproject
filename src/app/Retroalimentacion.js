@@ -16,14 +16,13 @@ export default class Retroalimentacion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            productos: [],
-            categorias: [],
-            cart: []
+            pedidos: [],
+            Productos_recibidos: true
         };
         this.handleChange = this.handleChange.bind(this);
     }
     componentDidMount() {
-        this.getCarrito()
+        this.getPedidos()
     }
     componentDidUpdate() {
     }
@@ -33,10 +32,27 @@ export default class Retroalimentacion extends Component {
             [id]: value
         })
     }
-    getCarrito() {
-        fetch('/api/market/getcart', {
+    getPedidos(){
+        fetch('/api/market/getpedidos', {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'authorization': localStorage.getItem('authtoken')
+            }
+        }).then(res => res.json())
+        .then(data=>{
+            if(data.success){
+                this.setState({
+                    pedidos: data.pedidos,
+                    ID_pedido: data.pedidos[0].ID_pedido
+                })
+            }
+        })
+    }
+    sendRetroalimentacion() {
+        fetch('/api/market/enviarretroalimentacion', {
             method: 'POST',
-            /*body: JSON.stringify(this.state),*/
+            body: JSON.stringify(this.state),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -46,11 +62,14 @@ export default class Retroalimentacion extends Component {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    const { cart } = data
-                    this.setState({
-                        cart
-                    }, () => {
-                        console.log(this.state.cart)
+                    toaster.notify('Retroalimentacion exitosa', {
+                        duration: 10000,
+                        position: 'bottom-right',
+                    })
+                }else{
+                    toaster.notify('Retroalimentacion ya entregada', {
+                        duration: 10000,
+                        position: 'bottom-right',
                     })
                 }
             })
@@ -94,18 +113,29 @@ export default class Retroalimentacion extends Component {
                         float: 'right',
                         marginTop: -45
                     }}
-                    onClick={() => { this.setState({ unlock_modal: true }) }}
+                    onClick={() => { this.sendRetroalimentacion() }}
                 >
                     Enviar retroalimentacion</Button>
                 <Row style={{ width: '100%', height: 'fit-content' }}>
-                    <Form.Control style={{ marginBottom: 20 }} as="select" multiple>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
+                    <p>Pedido:</p>
+                    <Form.Control
+                        onChange={e => { this.setState({ ID_pedido: e.target.value })}}
+                        as="select">
+                        {this.state.pedidos.map(data => {
+                            return (<option >{data.ID_pedido}</option>)
+                        })}
                     </Form.Control>
-                    <Form.Control placeholder="Mensaje" as="textarea" roes="4" />
+                    Productos recibidos:
+                    <Form.Check
+                        type="radio"
+                        id="Productos_recibidos"
+                        onChange={(e)=>{this.setState({Productos_recibidos: e.target.value == 'on'? true : false})}}
+                    />
+                    <p>Estado de productos:</p>
+                    <Form.Control onChange={(e)=>{this.handleChange(e)}} id="Estado_productos" defaultValue="0" type="range" min="0" max="10" step="1" />
+                    <p>Calidad de entrega:</p>
+                    <Form.Control onChange={(e)=>{this.handleChange(e)}} id="Calidad_entrega" defaultValue="0" type="range" min="0" max="10" step="1" />
+                    <Form.Control onChange={(e)=>{this.handleChange(e)}} id="Mensaje" placeholder="Mensaje" as="textarea" roes="4" />
                 </Row>
             </Container>
         )

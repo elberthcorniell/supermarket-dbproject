@@ -30,6 +30,7 @@ let checkToken = (req, res, next) => {
           req.body.Tipo = decodedValue.Tipo
           req.body.Cedula = decodedValue.Cedula
           req.body.ID_cliente = decodedValue.ID_cliente
+          req.body.ID_mensajero = decodedValue.ID_mensajero
           req.decoded = decoded;
           next();
         }

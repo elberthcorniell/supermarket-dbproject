@@ -61,7 +61,13 @@ export default class Carrito extends Component {
     makeOrder() {
         fetch('/api/market/pagarorden', {
             method: 'POST',
-            body: JSON.stringify({ ID_pedido: this.state.cart[0].ID_pedido }),
+            body: JSON.stringify({ 
+                ID_pedido: this.state.cart[0].ID_pedido,
+                Impuestos: 0.18*this.getTotal(),
+                Descuento: 0,
+                Precio_envio: 100,
+                Precio_total: ((this.getTotal()*1.18)+100).toFixed(2)
+            }),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -156,8 +162,7 @@ export default class Carrito extends Component {
                                     return (
                                         <tr>
                                             <td>{data.Nombre} 
-                                            <i style={{ cursor: 'pointer', float: 'right' }} onClick={()=>{this.deleteProduct(data.ID_producto)}} className="material-icons">delete</i>
-                                            <i style={{ cursor: 'pointer', float: 'right' }} className="material-icons">create</i></td>
+                                            <i style={{ cursor: 'pointer', float: 'right' }} onClick={()=>{this.deleteProduct(data.ID_producto)}} className="material-icons">delete</i></td>
                                             <td>{data.Cantidad}</td>
                                             <td>{(data.Precio || 0).toFixed(2)}</td>
                                             <td style={{textAlign: 'right'}}>{(data.Total || 0).toFixed(2)}</td>

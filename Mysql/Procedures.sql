@@ -14,7 +14,7 @@ BEGIN
 		on pa.ID_producto = pr.ID_producto
 	where pe.ID_cliente = @ID_cliente
 	group by Año, Mes, pr.Nombre
-	order by Año, Mes, pr.Nombre;
+	order by Año, Mes, pr.Nombre
 END;
 
 -- Consulta del mensajero con más entregas realizadas en un rango de fecha.

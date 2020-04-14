@@ -31,9 +31,8 @@ class Login extends Component {
           username: '', password: '', password_err: data.password_err || '',
           username_err: data.username_err || ''
         });
-        console.log(data)
         if (data.success) {
-          window.location.replace(data.Tipo == 'Admin'?'../admin/':'../productos?categoria=1');
+          window.location.replace(data.Tipo == 'Admin'?'../admin/productos':'../productos?categoria=1');
           localStorage.setItem('authtoken', data.token);
         }
       })

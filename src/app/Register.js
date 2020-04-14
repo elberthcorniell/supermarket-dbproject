@@ -62,10 +62,10 @@ class Register extends Component {
     fetch('/api/validate/register/direccion', {
       method: 'POST',
       body: JSON.stringify({
-        Municipio, 
-        Sector, 
-        Barrio, 
-        Calle, 
+        Municipio,
+        Sector,
+        Barrio,
+        Calle,
         N_Residencia
       }),
       headers: {
@@ -79,15 +79,49 @@ class Register extends Component {
         if (data.success == true) {
           this.setState({
             index: 2,
-            ID_Cuenta: data.ID_Cuenta
+            ID_direccion: data.ID_direccion
           })
         }
       })
       .catch(err => console.error(err));
     e.preventDefault();
   }
-  createPersona(e){
-
+  createPersona(e) {
+    const {
+      Cedula,
+      ID_Cuenta,
+      Nombre,
+      Apellido,
+      Sexo,
+      Fecha_nacimiento,
+      Telefono,
+      ID_direccion } = this.state
+    fetch('/api/validate/register/persona', {
+      method: 'POST',
+      body: JSON.stringify({
+        Cedula,
+        ID_Cuenta,
+        Nombre,
+        Apellido,
+        Sexo,
+        Fecha_nacimiento,
+        Telefono,
+        ID_direccion
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.msg)
+        if (data.success == true) {
+          window.location.replace('/auth/login')
+        }
+      })
+      .catch(err => console.error(err));
+    e.preventDefault();
   }
   renderForm(index) {
     switch (index) {
